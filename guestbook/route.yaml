@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Route
+metadata:
+  name: guestbook-ui
+spec:
+  host: hellow-world.apps.ocp43-prod.cloudlet-dev.com
+  to:
+    kind: Service
+    name: guestbook-ui
