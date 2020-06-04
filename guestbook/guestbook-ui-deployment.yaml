@@ -2,20 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: guestbook-ui
+  name: hello-world
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: guestbook-ui
+      app: hello-world
   template:
     metadata:
       labels:
-        app: guestbook-ui
+        app: hello-world
     spec:
       containers:
-      - image: registry.redhat.io/rhscl/httpd-24-rhel7
-        name: guestbook-ui
+      - image: hello-world
+        name: hello-world
         ports:
         - containerPort: 8443
