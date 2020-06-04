@@ -15,7 +15,7 @@ spec:
         app: guestbook-ui
     spec:
       containers:
-      - image: carinamarina/hello-world-app
+      - image: datawire/hello-world
         name: guestbook-ui
         ports:
         - containerPort: 5000
