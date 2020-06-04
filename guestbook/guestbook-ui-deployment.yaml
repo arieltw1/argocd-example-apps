@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 kind: Service
 apiVersion: v1
@@ -107,3 +108,25 @@ spec:
           limits:
             memory: 512Mi
         env: []
+=======
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guestbook-ui
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: guestbook-ui
+  template:
+    metadata:
+      labels:
+        app: guestbook-ui
+    spec:
+      containers:
+      - image: registry.redhat.io/rhscl/httpd-24-rhel7
+        name: guestbook-ui
+        ports:
+        - containerPort: 8443
+>>>>>>> parent of e368ee4... Update guestbook-ui-deployment.yaml
