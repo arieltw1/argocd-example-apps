@@ -7,10 +7,10 @@ spec:
     - name: http
       protocol: TCP
       port: 80
-      targetPort: 5000
+      targetPort: 8000
     - name: https
       protocol: TCP
       port: 443
-      targetPort: 5000
+      targetPort: 8000
   selector:
     app: guestbook-ui
