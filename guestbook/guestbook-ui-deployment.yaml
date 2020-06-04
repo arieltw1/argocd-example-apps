@@ -17,4 +17,4 @@ spec:
       - image: registry.redhat.io/rhscl/httpd-24-rhel7
         name: guestbook-ui
         ports:
-        - containerPort: 8080
+        - containerPort: 8443
