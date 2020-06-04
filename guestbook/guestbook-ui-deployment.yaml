@@ -17,5 +17,3 @@ spec:
       containers:
       - image: hello-world
         name: hello-world
-        ports:
-        - containerPort: 8443
