@@ -2,9 +2,9 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: guestbook-ui
+  name: hello-argo
 spec:
-  host: hellow-world.apps.ocp43-prod.cloudlet-dev.com
+  host: hello-argo.apps.ocp43-prod.cloudlet-dev.com
   to:
     kind: Service
-    name: guestbook-ui
+    name: hello-argo
