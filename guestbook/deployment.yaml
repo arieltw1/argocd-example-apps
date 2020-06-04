@@ -2,20 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: guestbook-ui
+  name: hello-argo
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: guestbook-ui
+      app: hello-argo
   template:
     metadata:
       labels:
-        app: guestbook-ui
+        app: hello-argo
     spec:
       containers:
       - image: datawire/hello-world
-        name: guestbook-ui
+        name: hello-argo
         ports:
         - containerPort: 8000
