@@ -2,18 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world
+  name: guestbook-ui
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: hello-world
+      app: guestbook-ui
   template:
     metadata:
       labels:
-        app: hello-world
+        app: guestbook-ui
     spec:
       containers:
-      - image: hello-world
-        name: hello-world
+      - image: carinamarina/hello-world-app
+        name: guestbook-ui
+        ports:
+        - containerPort: 5000
