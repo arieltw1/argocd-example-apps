@@ -4,7 +4,13 @@ metadata:
   name: guestbook-ui
 spec:
   ports:
-  - port: 8443
-    targetPort: 443
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 5000
   selector:
     app: guestbook-ui
