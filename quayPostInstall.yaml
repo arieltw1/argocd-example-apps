@@ -1,0 +1,120 @@
+---
+
+- name: "Run postjobs for Quay installation"
+  hosts: localhost
+  gather_facts: no
+  become: false
+  tasks:
+
+#    - name: "Create cloudlet Organization"
+#      uri:
+#        url: "https://{{ QUAY_ENDPOINT }}/api/v1/organization/"
+#        method: POST
+#        headers:
+#          Authorization: "Bearer {{ QUAY_AUTH_TOKEN }}"
+#        validate_certs: no #delete when certs are trusted
+#        body_format: json
+#        status_code: 201
+#        body:
+#          name: "{{ organization }}"
+#
+#    - name: "Create mgmt (managment) OAuth Application under cloudlet org"
+#      uri:
+#          url: "https://{{ QUAY_ENDPOINT }}/api/v1/organization/{{ organization }}/applications"
+#          method: POST
+#          headers:
+#            Authorization: "Bearer {{ QUAY_AUTH_TOKEN }}"
+#          validate_certs: no #delete when certs are trusted
+#          body_format: json
+#          status_code: 201
+#          body:
+#            name: "mgmt"
+
+    - name: "Update Quay Configuration"
+      shell: oc login https://api.ocp43-offline.sales.lab.tlv.redhat.com:6443 -u admin -p redhat -n quay-enterprise --insecure-skip-tls-verify=true
+ 
+    - name: "Create temporary directory"
+      tempfile:
+        state: directory
+      register: tempdir
+ 
+    - name: "Get current Configuration"
+      shell: "oc extract secret/quay-enterprise-config-secret --to={{ tempdir.path }} --keys=config.yaml"
+
+    - name: "Modify Configuration"
+      include_vars:
+        file: "{{ tempdir.path }}/config.yaml"
+        name: default_config
+      
+    - template:
+        src: config.yaml.j2
+        dest: "{{ tempdir.path }}/config.yaml"
+  
+    - name: "Apply new Configuration"
+      shell: "oc delete secret quayconfigfile"
+      ignore_errors: true
+
+    - shell: "oc create secret generic quayconfigfile --from-file={{ tempdir.path }}/config.yaml"
+  
+    - name: "Apply TLS Certificates"
+      shell: "oc delete secret custom-quay-ssl"
+      ignore_errors: true
+
+    - copy:
+        src: "tls/{{ item }}"
+        dest: "{{ tempdir.path }}"
+        mode: '0400'
+      with_items:
+       - "{{ cert_file }}"
+       - "{{ cert_key_file }}"
+      
+    - shell: "oc create secret tls custom-quay-ssl --key={{ tempdir.path }}/{{ cert_key_file }} --cert={{ tempdir.path }}/{{ cert_file }}"
+
+#    - name: "White list mgmt client-id in Quay's configuration"
+       
+    - name: "Rollout Quay deployment"
+      shell: "oc rollout restart deployment {{ item }}"
+      with_items:
+        - "quayecosystem-quay"
+        - "quayecosystem-quay-repomirror"
+  
+#    - name: "Generate OAuth Token with admin scopre"
+  
+#    - name: "Uploud Token to OCP as a secret in Quay's Project"
+  
+    - name: "Create cloudlet+mirror robot for mirroing of all applications"
+      uri:
+        url: "https://{{ QUAY_ENDPOINT }}/api/v1/organization/{{ organization }}/robots/{{ robot_username }}"
+        method: PUT
+        headers:
+          Authorization: "Bearer {{ QUAY_AUTH_TOKEN }}"
+        validate_certs: no
+        body_format: json
+        status_code: 201
+        body:
+          description: "Robot for mirroring"
+      ignore_errors: true
+      register: robot
+
+    - name: "Get current pull secret"
+      shell: "oc extract secret/pull-secret -n openshift-config --to={{ tempdir.path }} --keys .dockerconfigjson"
+
+    - include_vars:
+        file: "{{ tempdir.path }}/.dockerconfigjson"
+        name: pull_secret_current
+
+    - set_fact:
+        pull_secret: "{{ lookup('template', 'config.json.j2') | combine(pull_secret_current, recursive=True) }}"
+
+    - copy:
+        content: "{{ pull_secret }}"
+        dest: "{{ tempdir.path }}/config.json"
+
+    - name: "Uploud pull secret to OCP as gloabl pull secret"
+      shell: "oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson={{ tempdir.path }}/config.json"
+
+    - name: "Remove temporary directory"
+      file:
+        path: "{{ tempdir.path }}"
+        state: absent
+      when: tempdir.path is defined
