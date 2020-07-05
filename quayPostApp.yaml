@@ -53,7 +53,7 @@
               no_proxy: ""
             verify_tls: true
           external_registry_username: "{{ UPSTREAM_USERNAME }}"
-          external_reference: "https://{{ UPSTREAN_REGISTRY }}/library/{{ Application }}"
+          external_reference: "{{ UPSTREAN_REGISTRY }}/library/{{ Application }}"
           sync_start_date: "{{ ansible_date_time['iso8601'] }}"
           root_rule:
             rule_kind: "tag_glob_csv"
